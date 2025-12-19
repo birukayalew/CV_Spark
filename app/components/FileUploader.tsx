@@ -7,11 +7,16 @@ interface FileUploaderProps {
 }
 
 const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[0] || null;
+    const [file, setFile] = useState<File | null>(null);
 
-        onFileSelect?.(file);
-    }, [onFileSelect]);
+    const onDrop = useCallback(
+        (acceptedFiles: File[]) => {
+            const f = acceptedFiles[0] ?? null;
+            setFile(f);
+            onFileSelect?.(f);
+        },
+        [onFileSelect]
+    );
 
     const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
 
@@ -22,8 +27,12 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
         maxSize: maxFileSize,
     })
 
-    const file = acceptedFiles[0] || null;
-
+    const clearFile = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation(); // don’t trigger the file picker
+        setFile(null);
+        onFileSelect?.(null);
+    };
 
 
     return (
@@ -45,9 +54,7 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
                                     </p>
                                 </div>
                             </div>
-                            <button className="p-2 cursor-pointer" onClick={(e) => {
-                                onFileSelect?.(null)
-                            }}>
+                            <button className="p-2 cursor-pointer" onClick={clearFile}>
                                 <img src="/icons/cross.svg" alt="remove" className="w-4 h-4" />
                             </button>
                         </div>
